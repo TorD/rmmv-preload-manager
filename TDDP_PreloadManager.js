@@ -76,6 +76,52 @@ indexFilename: ".PM_Index",
  * @param Print Debug Level
  * @desc The type of debug output you like to see in the console. From most to least: debug | info | warn | error
  * @default debug
+ *
+ * @param Startup Preload 1
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ * @default
+ *
+ * @param Startup Preload 2
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 3
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 4
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 5
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 6
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 7
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 8
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 9
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 10
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 11
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 12
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 13
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 14
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
+ *
+ * @param Startup Preload 15
+ * @desc File or folder path you wish to preload on game start. All subfolders of a given folder will be preloaded too.
  */
 (function($) {
   "use strict";
@@ -95,6 +141,11 @@ indexFilename: ".PM_Index",
   $.settings.printDebug          = $.settings.booleanCheck('Print Debug to Console');
   $.settings.logLevel            = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
   $.settings.simulateLatency     = parseInt($.settings.parameters['Simulate Latency'], 10);
+  // Startup preload aggregation
+  for (var i = 1; i <= 15; i++) {
+    var path = $.settings.parameters['Startup Preload ' + i];
+    if (path) $.config.startupPreload.push(path);
+  }
   //=============================================================================
   // asEventDispatcher functional mixin
   //=============================================================================
