@@ -841,8 +841,11 @@ indexFilename: ".PM_Index",
     if ($dataMap.bgs.name)        $.queueAudioFileForPreload("bgs", $dataMap.bgs.name);
     if ($dataMap.battleback1Name) $.queueImageFileForPreload("battlebacks1", $dataMap.battleback1Name);
     if ($dataMap.battleback2Name) $.queueImageFileForPreload("battlebacks2", $dataMap.battleback2Name);
+    if ($dataMap.parallaxName)    $.queueImageFileForPreload("parallaxes", $dataMap.parallaxName);
     if ($dataMap.tilesetId)       $.queueTilesetsForPreloadById($dataMap.tilesetId);
     if ($dataMap.bgm.name && !AudioManager.shouldUseHtml5Audio()) $.queueAudioFileForPreload("bgm", $dataMap.bgm.name);
+    // Load party
+    $.indexGameParty($gameParty._actors)
     // Cycle events and load appropriate resources
     $dataMap.events.forEach(function(event) {
       if (event) {
@@ -876,34 +879,52 @@ indexFilename: ".PM_Index",
     $.performPreload();
   }
   /**
-   * Index gameActors object
+   * Index $gameParty object
+   * @static
+   */
+  $.indexGameParty = function() {
+    $gameParty._actors.forEach(function(id) {
+      $.indexGameActor($gameActors._data[id]);
+    })
+  }
+  /**
+   * Index $gameActors object
+   * @static
    */
   $.indexGameActors = function() {
     $gameActors._data.forEach(function(gameActor) {
-      if ($gameSystem.isSideView()) {
-        if (gameActor._battlerName)   $.queueImageFileForPreload("sv_actors", gameActor._battlerName);
-      }
-      if (gameActor._characterName) $.queueImageFileForPreload("characters", gameActor._characterName);
-      if (gameActor._faceName)      $.queueImageFileForPreload("faces", gameActor._faceName);
+      $.indexGameActor(gameActor);
+    });
+  }
+  /**
+   * Index a Game_Actor object
+   * @param gameActor {Game_Actor}
+   * @static
+   */
+  $.indexGameActor = function(gameActor) {
+    if ($gameSystem.isSideView()) {
+      if (gameActor._battlerName)   $.queueImageFileForPreload("sv_actors", gameActor._battlerName);
+    }
+    if (gameActor._characterName) $.queueImageFileForPreload("characters", gameActor._characterName);
+    if (gameActor._faceName)      $.queueImageFileForPreload("faces", gameActor._faceName);
 
-      gameActor._animations.forEach(function(animationId) {
-        $.queueAnimationForPreload(animationId);
-      });
+    gameActor._animations.forEach(function(animationId) {
+      $.queueAnimationForPreload(animationId);
+    });
 
-      gameActor._skills.forEach(function(skillId) {
-        $.queueAnimationForPreload($dataSkills[skillId].animationId);
-      })
+    gameActor._skills.forEach(function(skillId) {
+      $.queueAnimationForPreload($dataSkills[skillId].animationId);
+    })
 
-      gameActor._equips.forEach(function(gameItem) {
-        if (gameItem._dataClass && gameItem._itemId > 0) {
-          var itemData = gameItem._dataClass ==  "weapon" ? $dataWeapons : $dataArmors;
-          var item = itemData[gameItem._itemId];
-          if (item.animationId) $.queueAnimationForPreload(item.animationId);
-          if ($gameSystem.isSideView()) {
-            $.queueWeaponTypeForPreload(item.wtypeId);
-          }
+    gameActor._equips.forEach(function(gameItem) {
+      if (gameItem._dataClass && gameItem._itemId > 0) {
+        var itemData = gameItem._dataClass ==  "weapon" ? $dataWeapons : $dataArmors;
+        var item = itemData[gameItem._itemId];
+        if (item.animationId) $.queueAnimationForPreload(item.animationId);
+        if ($gameSystem.isSideView()) {
+          $.queueWeaponTypeForPreload(item.wtypeId);
         }
-      });
+      }
     });
   }
   /**
@@ -1032,7 +1053,7 @@ indexFilename: ".PM_Index",
     xhr.send();
   }
   /**
-   * Actual preload looper
+   * Preload loop function
    * @private
    * @static
    */
