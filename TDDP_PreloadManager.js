@@ -21,9 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-var Imported = Imported || {};
-Imported.TDDP_PreloadManager = true;
-
+var Imported = Imported || {}; Imported.TDDP_PreloadManager = true;
 var TDDP = TDDP || {}; TDDP.PreloadManager = { config: {
 startupPreload: [ // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
