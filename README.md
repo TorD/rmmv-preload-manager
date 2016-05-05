@@ -15,4 +15,16 @@ Audio is also cached in memory, which is entirely new and not something MV does 
 You can (rather easily) tell the plugin to preload both individual files or entire folders (and their subfolders!) on game start.
 
 ## Configurable memory limits
-Both the audio and image cache limits can be configured via the plugin's Plugin Manager settings.
+Both the audio and image cache limits can be configured via the plugin's Plugin Manager settings. When these are reached, the oldest and least used assets will be purged from the cache to free up space for new items on load.
+
+__Important:__ The plugin will not deny assets to be loaded if your maps or battles contain enough new assets on them to exceed these limits on their own. So the limits are not hard limits, but rather cache limits which the plugin will do its best to adhere to, but it won't stop you from exceeding them by your own hands.
+
+A future addon is planned to make it easier to see how much memory a given map or battle takes up, so you can plan your games better.
+
+## Extensibility
+The plugin now has fully documented source code _and_ public interfaces other plugins can use to listen to preload events, check progress, and more.
+
+## Planned addons
+With the extensibility in mind, I have plans for at least two future addons plugins:
+1. Preload Scene - Show progress bars and images while things are preloading.
+2. Memory Monitor - Monitor just how much memory your maps and battles take up in the asset cache while you're testing your game with GUI element.
