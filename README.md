@@ -1,5 +1,10 @@
 # Preload Manager for RPG Maker MV
-Version 2.0.0 of the Preload Manager plugin marks a complete rewrite with vastly better performance and handling of files. But not only that, it adds a lot of new features too! Let's take a look:
+Version 2.0.0 of the Preload Manager plugin marks a complete rewrite with vastly better performance and handling of files. But not only that, it adds a lot of new features too!
+
+## What does it do?
+The Preload Manager preloads the assets used in scenes (startup, maps and battles) before the scenes are started. By default many images added in events, as well as sound effects and animations, have a delay the first time they are played. This is because they're loaded on-demand that first time, which does not look nor feel good for the player.
+
+Preloading assets up front is what game engines usually do; we're all used to seeing some loading screens. When playing a game locally, the loading times are barely increased with this plugin. When played from a server, the loading times will be far longer, but the experience once the maps start will be much much better too.
 
 # How to install
 1. Click this link: https://raw.githubusercontent.com/TorD/rmmv-preload-manager/2.0.0-rc1/TDDP_PreloadManager.js
