@@ -416,7 +416,7 @@ indexFilename: ".PM_Index",
       $.helper.log("All crawls successful");
 
       // Save index file
-      $.dev.fs.writeFileSync($.helper.indexFilePath(), JSON.stringify(index));
+      $.dev.fs.writeFileSync($.helper.localToFullPath($.helper.indexFilePath()), JSON.stringify(index));
       $.helper.log("Index file saved:", [$.helper.projectPath(), $.config.indexFilename].join(""));
     },
   };
