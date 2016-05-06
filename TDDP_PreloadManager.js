@@ -928,50 +928,89 @@ indexFilename: ".PM_Index",
     });
   }
   /**
+   * Index Move Route
+   * @param moveRoute {Object}
+   * @static
+   */
+  $.indexMoveRoute = function(moveRoute) {
+    moveRoute.list.forEach(function(listEntry) {
+      var p = listEntry.parameters;
+      switch (listEntry.code) {
+        // Change Image
+        case 41:
+          if (p[0]) $.queueImageFileForPreload("characters", p[0]);
+          break;
+        // Play SE
+        case 44:
+          if (p[0]) $.queueAudioFileForPreload("se", p[0].name);
+          break;
+      }
+    });
+  }
+  /**
    * Index given event pages
    * @param pages {Array} Array of event page objects
+   * @static
    */
   $.indexEventPages = function(pages) {
     pages.forEach(function(page) {
+      if (page.moveRoute && page.moveType == 3) $.indexMoveRoute(page.moveRoute); // If not 3, the page moveRoute is disabled
       if (page.image && page.image.characterName) $.queueImageFileForPreload("characters", page.image.characterName);
-      page.list.forEach(function(listEntry) {
-        var code = listEntry.code;
-        var p = listEntry.parameters;
-        switch(code) {
-          // Show Picture
-          case 231:
-            if (p[1]) $.queueImageFileForPreload("pictures", p[1]);
-            break;
-          // Play BGM
-          case 241:
-            if (p[0]) $.queueAudioFileForPreload("bgm", p[0].name);
-            break;
-          // Play BGS
-          case 245:
-            if (p[0]) $.queueAudioFileForPreload("bgs", p[0].name);
-            break;
-          // Play ME
-          case 249:
-            if (p[0]) $.queueAudioFileForPreload("me", p[0].name);
-            break;
-          // Play SE
-          case 250:
-            if (p[0]) $.queueAudioFileForPreload("se", p[0].name);
-            break;
-          // Change Parallax
-          case 284:
-            if (p[0]) $.queueImageFileForPreload("parallax", p[0]);
-            break;
-          // Show Text
-          case 101:
-            if (p[0]) $.queueImageFileForPreload("faces", p[0]);
-            break;
-          // Show Animation
-          case 212:
-            if (p[1]) $.queueAnimationForPreload(p[1]);
-            break;
-        }
-      });
+      $.indexEventList(page.list);
+    });
+  }
+  /**
+   * Index an event list
+   * @param list {Object} A list of event entries
+   * @static
+   */
+  $.indexEventList = function(list) {
+    list.forEach(function(listEntry) {
+      var p = listEntry.parameters;
+      switch(listEntry.code) {
+        // Common Event
+        case 117:
+          var commonEvent = $dataCommonEvents[p[0]];
+          if (commonEvent) $.indexEventList(commonEvent.list)
+          break;
+        // Move Route
+        case 205:
+        case 505:
+          if (p[1]) $.indexMoveRoute(p[1]);
+          break;
+        // Show Picture
+        case 231:
+          if (p[1]) $.queueImageFileForPreload("pictures", p[1]);
+          break;
+        // Play BGM
+        case 241:
+          if (p[0]) $.queueAudioFileForPreload("bgm", p[0].name);
+          break;
+        // Play BGS
+        case 245:
+          if (p[0]) $.queueAudioFileForPreload("bgs", p[0].name);
+          break;
+        // Play ME
+        case 249:
+          if (p[0]) $.queueAudioFileForPreload("me", p[0].name);
+          break;
+        // Play SE
+        case 250:
+          if (p[0]) $.queueAudioFileForPreload("se", p[0].name);
+          break;
+        // Change Parallax
+        case 284:
+          if (p[0]) $.queueImageFileForPreload("parallax", p[0]);
+          break;
+        // Show Text
+        case 101:
+          if (p[0]) $.queueImageFileForPreload("faces", p[0]);
+          break;
+        // Show Animation
+        case 212:
+          if (p[1]) $.queueAnimationForPreload(p[1]);
+          break;
+      }
     });
   }
   /**
