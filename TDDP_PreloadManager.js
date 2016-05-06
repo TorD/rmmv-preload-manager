@@ -818,15 +818,22 @@ indexFilename: ".PM_Index",
    * @static
    * @return {PreloadObject}
    */
-  $.loadImmediately = function(localPath) {
-    var preloadObject = new PreloadObject(
-      localPath,
-      $.getFileIndexData(localPath)
-    );
-    $.cache.addPreloadObject(preloadObject);
-    preloadObject.load();
-    return preloadObject;
-  }
+   $.loadImmediately = function(localPath) {
+     var localPath = decodeURIComponent(localPath);
+     var fileIndexData = $.getFileIndexData(localPath);
+     if (fileIndexData) {
+       var preloadObject = new PreloadObject(
+         localPath,
+         fileIndexData
+       );
+       $.cache.addPreloadObject(preloadObject);
+       preloadObject.load();
+       return preloadObject;
+     } else {
+       $.helper.log("warn", "File not found in index:", localPath);
+       return null;
+     }
+   }
   /**
    * Load the index file
    * @static
@@ -839,11 +846,16 @@ indexFilename: ".PM_Index",
     if ($dataSystem.ship.characterName)    $.queueImageFileForPreload("characters", $dataSystem.ship.characterName);
     // Preload map specific data
     if ($dataMap.bgs.name)        $.queueAudioFileForPreload("bgs", $dataMap.bgs.name);
-    if ($dataMap.battleback1Name) $.queueImageFileForPreload("battlebacks1", $dataMap.battleback1Name);
-    if ($dataMap.battleback2Name) $.queueImageFileForPreload("battlebacks2", $dataMap.battleback2Name);
     if ($dataMap.parallaxName)    $.queueImageFileForPreload("parallaxes", $dataMap.parallaxName);
     if ($dataMap.tilesetId)       $.queueTilesetsForPreloadById($dataMap.tilesetId);
     if ($dataMap.bgm.name && !AudioManager.shouldUseHtml5Audio()) $.queueAudioFileForPreload("bgm", $dataMap.bgm.name);
+    // Battlebacks
+    var tempSpritesetBattle = new Spriteset_Battle();
+    for (var i = 1; i <= 2; i++) {
+      if (tempSpritesetBattle["battleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["battleback" + i + "Name"]());
+      if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
+      if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
+    }
     // Load party
     $.indexGameParty($gameParty._actors)
     // Cycle events and load appropriate resources
@@ -902,6 +914,7 @@ indexFilename: ".PM_Index",
    * @static
    */
   $.indexGameActor = function(gameActor) {
+    if (!gameActor) return;
     if ($gameSystem.isSideView()) {
       if (gameActor._battlerName)   $.queueImageFileForPreload("sv_actors", gameActor._battlerName);
     }
@@ -982,7 +995,8 @@ indexFilename: ".PM_Index",
         case 231:
           if (p[1]) $.queueImageFileForPreload("pictures", p[1]);
           break;
-        // Play BGM
+        // Play / Change BGM
+        case 132:
         case 241:
           if (p[0]) $.queueAudioFileForPreload("bgm", p[0].name);
           break;
@@ -1424,7 +1438,7 @@ indexFilename: ".PM_Index",
    */
   AudioManager.createBuffer = function(folder, name) {
     var ext = this.audioFileExt();
-    var url = this._path + folder + '/' + encodeURIComponent(name) + ext;
+    var url = decodeURIComponent(this._path + folder + '/' + name + ext);
     if (this.shouldUseHtml5Audio() && folder === 'bgm') {
       Html5Audio.setup(url);
       return Html5Audio;
@@ -1435,7 +1449,13 @@ indexFilename: ".PM_Index",
         return cachedPreloadObject.data;
       } else {
         $.helper.log("Cache miss (fetching):", url);
-        return $.loadImmediately(url).data;
+        var preloadObject = $.loadImmediately(url);
+        if (preloadObject) {
+          return preloadObject.data;
+        } else {
+          $.helper.log("error", "File not found:", url);
+          return null;
+        }
       }
     }
   };
@@ -1459,7 +1479,13 @@ indexFilename: ".PM_Index",
       return cachedPreloadObject.data;
     } else {
       $.helper.log("Cache miss (fetching):", url);
-      return $.loadImmediately(url).data;
+      var preloadObject = $.loadImmediately(url);
+      if (preloadObject) {
+        return preloadObject.data;
+      } else {
+        throw new Error("File not found: " + url);
+        return null;
+      }
     }
   };
   //=============================================================================
