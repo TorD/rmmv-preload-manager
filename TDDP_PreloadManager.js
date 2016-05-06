@@ -66,7 +66,7 @@ indexFilename: ".PM_Index",
 }};
 //=============================================================================
 /*:
- * @plugindesc 2.0.0-RC2 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 2.0.0-RC4 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
