@@ -727,6 +727,7 @@ indexFilename: ".PM_Index",
    */
   $.queueAnimationForPreload = function(id, garbageCollectable) {
     var animation = $dataAnimations[id];
+    if (!animation) return $.helper.log("warn", "Animation id", id, "not found in database. Skipping!");
     if (animation.animation1Name) $.queueImageFileForPreload("animations", animation.animation1Name, garbageCollectable);
     if (animation.animation2Name) $.queueImageFileForPreload("animations", animation.animation2Name, garbageCollectable);
     animation.timings.forEach(function(timing) {
