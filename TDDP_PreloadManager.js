@@ -713,6 +713,7 @@ indexFilename: ".PM_Index",
    */
   $.queueTilesetsForPreloadById = function(id, garbageCollectable) {
     var tileset = $dataTilesets[id];
+    if (!tileset) return $.helper.log("warn", "Tileset id", id, "referenced in event but not found in database. Skipping!");
     var files = [];
     tileset.tilesetNames.forEach(function(file) {
       files.push("img/tilesets/" + file + ".png");
@@ -727,7 +728,7 @@ indexFilename: ".PM_Index",
    */
   $.queueAnimationForPreload = function(id, garbageCollectable) {
     var animation = $dataAnimations[id];
-    if (!animation) return $.helper.log("warn", "Animation id", id, "not found in database. Skipping!");
+    if (!animation) return $.helper.log("warn", "Animation id", id, "referenced in event but not found in database. Skipping!");
     if (animation.animation1Name) $.queueImageFileForPreload("animations", animation.animation1Name, garbageCollectable);
     if (animation.animation2Name) $.queueImageFileForPreload("animations", animation.animation2Name, garbageCollectable);
     animation.timings.forEach(function(timing) {
@@ -862,6 +863,7 @@ indexFilename: ".PM_Index",
     // Cycle events and load appropriate resources
     $dataMap.events.forEach(function(event) {
       if (event) {
+        $.helper.log("debug", "~ Crawling event id:", event.id, "| Name:", event.name);
         $.indexEventPages(event.pages);
       };
     });
