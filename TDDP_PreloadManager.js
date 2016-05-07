@@ -759,9 +759,9 @@ indexFilename: ".PM_Index",
    */
   $.performPreload = function() {
     if (!$.hasAnyInPreloadQueue()) return $.dispatchEvent(new Event($.events.onPreloadLoad));
+    $.dispatchEvent(new Event($.events.onPreloadStart));
     $.helper.log("info", "====== Starting preload", "(" + $.queue.preloadObjects.length,  "files /", $.helper.toKB($.queue.sizeTotal), "kB)", "======")
     // $.helper.log("debug", "Total data size queued for preload:", $.helper.toKB($.queue.sizeTotal), "kB");
-    $.dispatchEvent(new Event($.events.preloadStart));
     $._preloadLooper();
   }
   /**
@@ -1062,7 +1062,10 @@ indexFilename: ".PM_Index",
    * @static
    */
   $.percentLoaded = function() {
-    return Math.floor(this.queue.sizeLoaded / this.queue.sizeTotal * 100);
+    var num = $.sizeLoaded() / $.sizeTotal();
+    if (isNaN(num)) return 0;
+    if (num > 1) return 100; // Sometimes sizeLoaded is larger because... Reasons
+    return Math.floor(num * 100);
   };
   /**
    * Get size total of queued files (in Bytes)
@@ -1070,7 +1073,7 @@ indexFilename: ".PM_Index",
    * @return {Integer}
    */
   $.sizeTotal = function() {
-    return this.queue.sizeTotal;
+    return this.queue.sizeTotal || 0;
   }
   /**
    * Get size of loaded data (in Bytes)
@@ -1078,7 +1081,7 @@ indexFilename: ".PM_Index",
    * @return {Integer}
    */
   $.sizeLoaded = function() {
-    return this.queue.sizeLoaded;
+    return this.queue.sizeLoaded || 0;
   }
   /**
    * Check if currently loading data
@@ -1408,7 +1411,7 @@ indexFilename: ".PM_Index",
     $.preloadBattle();
   }
   Scene_Battle.prototype.isReady = function() {
-    return this.__isPreloaded;
+    return this.__isPreloaded && Scene_Base.prototype.isReady.call(this);
   }
   //=============================================================================
   // DataManager extensions
