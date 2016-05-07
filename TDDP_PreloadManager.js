@@ -234,6 +234,14 @@ indexFilename: ".PM_Index",
     return this; // for testing purposes
   };
   //=============================================================================
+  // Noinit_Spriteset_Battle extension
+  // Used to get battleback names dynamically but without instantiating load
+  //=============================================================================
+  function Noinit_Spriteset_Battle() {this.initialize.apply(this, arguments);}
+  Noinit_Spriteset_Battle.prototype = Object.create(Spriteset_Battle.prototype);
+  Noinit_Spriteset_Battle.prototype.constructor = Spriteset_Battle;
+  Noinit_Spriteset_Battle.prototype.initialize = function(){};
+  //=============================================================================
   // Helper methods
   //=============================================================================
   $.helper = {
@@ -793,7 +801,7 @@ indexFilename: ".PM_Index",
   $.addToPreloadQueue = function(preloadObject) {
     if (!$.existsInPreloadQueue(preloadObject.path) && !$.cache.retrieveFromPath(preloadObject.path)) {
       $.queue.sizeTotal += preloadObject.fileSize;
-      $.helper.log("Adding to queue:", preloadObject.path)
+      $.helper.log("Adding to queue:", preloadObject.path);
       $.queue.preloadObjects.push(preloadObject);
     }
     return preloadObject;
@@ -852,12 +860,7 @@ indexFilename: ".PM_Index",
     if ($dataMap.tilesetId)       $.queueTilesetsForPreloadById($dataMap.tilesetId);
     if ($dataMap.bgm.name && !AudioManager.shouldUseHtml5Audio()) $.queueAudioFileForPreload("bgm", $dataMap.bgm.name);
     // Battlebacks
-    var tempSpritesetBattle = new Spriteset_Battle();
-    for (var i = 1; i <= 2; i++) {
-      if (tempSpritesetBattle["battleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["battleback" + i + "Name"]());
-      if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
-      if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
-    }
+    $.indexBattlebacks();
     // Load party
     $.indexGameParty($gameParty._actors)
     // Cycle events and load appropriate resources
@@ -875,23 +878,30 @@ indexFilename: ".PM_Index",
   $.preloadBattle = function() {
     var dataTroop = $dataTroops[$gameTroop._troopId];
     $.helper.log("info", "====== Indexing battle:", dataTroop.name, "========");
-    // Battlebacks and fallbacks if not defined in map
-    if ($dataMap && $dataMap.battleback1Name) {
-      $.queueImageFileForPreload("battlebacks1", $dataMap.battleback1Name);
-    } else if ($dataSystem.battleback1Name) {
-      $.queueImageFileForPreload("battlebacks1", $dataSystem.battleback1Name);
-    }
-    if ($dataMap && $dataMap.battleback2Name) {
-      $.queueImageFileForPreload("battlebacks2", $dataMap.battleback2Name);
-    } else if ($dataSystem.battleback2Name) {
-      $.queueImageFileForPreload("battlebacks2", $dataSystem.battleback2Name);
-    }
+    // Battlebacks
+    $.indexBattlebacks();
     // Index different data structures
     $.indexEventPages(dataTroop.pages);
     $.indexBattleMembers(dataTroop.members);
     $.indexGameActors();
     // Perform
     $.performPreload();
+  }
+  /**
+   * Index battlebacks
+   * @static
+   */
+  $.indexBattlebacks = function() {
+    var tempSpritesetBattle = new Noinit_Spriteset_Battle();
+    for (var i = 1; i <= 2; i++) {
+      if (tempSpritesetBattle["battleback" + i + "Name"]()) {
+        $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["battleback" + i + "Name"]());
+      } else if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) {
+        $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
+      } else if (tempSpritesetBattle["terrainBattleback" + i + "Name"]()) {
+        $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["terrainBattleback" + i + "Name"]())
+      };
+    }
   }
   /**
    * Index $gameParty object
@@ -1394,7 +1404,7 @@ indexFilename: ".PM_Index",
     $.addEventListener($.events.onPreloadLoad, function() {
       this.__isPreloaded = true;
       Scene_Battle_prototype_create.call(this);
-    }.bind(this))
+    }.bind(this));
     $.preloadBattle();
   }
   Scene_Battle.prototype.isReady = function() {
