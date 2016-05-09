@@ -1111,9 +1111,7 @@ indexFilename: ".PM_Index",
       if (xhr.status < 400) {
         $.indexFile = JSON.parse(xhr.responseText);
         $.helper.log("Successfully loaded index file.");
-        // Dispatch event
-        var completeEvent = new Event($.events.onIndexLoad)
-        $.dispatchEvent(completeEvent);
+        $.dispatchEvent(new Event($.events.onIndexLoad));
       }
     };
     xhr.onerror = function() {
