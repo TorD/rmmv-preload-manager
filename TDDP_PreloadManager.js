@@ -62,11 +62,11 @@ ignoredExtensions: [
 // Index filename
 // - The index file that gets generated
 //-----------------------------------------------------------------------------
-indexFilename: ".PM_Index",
+indexFilename: "TDDP_PM.index",
 }};
 //=============================================================================
 /*:
- * @plugindesc 2.0.0-RC5 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 2.0.0-RC6 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
