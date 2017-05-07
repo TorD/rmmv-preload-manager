@@ -7,7 +7,7 @@ The Preload Manager preloads the assets used in scenes (startup, maps and battle
 Preloading assets up front is what game engines usually do; we're all used to seeing some loading screens. When playing a game locally, the loading times are barely increased with this plugin. When played from a server, the loading times will be far longer, but the experience once the maps start will be much much better too.
 
 # How to install
-1. Click this link: https://raw.githubusercontent.com/TorD/rmmv-preload-manager/2.0.0-rc1/TDDP_PreloadManager.js
+1. Click this link: https://raw.githubusercontent.com/TorD/rmmv-preload-manager/2.0.0-rc6/TDDP_PreloadManager.js
 2. Hit CMD + S (CTRL + S on Windows) and save the file in your project's `js/plugins/` folder.
 
 # Features
