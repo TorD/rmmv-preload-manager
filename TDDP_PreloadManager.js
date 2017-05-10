@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Tor Damian Lorentzen
+Copyright (c) 2017 Tor Damian Lorentzen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,8 @@ startupPreload: [ // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
 // Files to preload upon startup
 //-----------------------------------------------------------------------------
-// "audio/se/001-System01.ogg", // Files
-// "img/faces", // Folders too
+// "audio/se/001-System01.ogg", // Individual files
+//	"img/sv_actors",            // Folders too; no trailing slash
 ], // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
 // Files to preload upon startup that will NEVER be unloaded from memory
@@ -66,7 +66,7 @@ indexFilename: "TDDP_PM.index",
 }};
 //=============================================================================
 /*:
- * @plugindesc 2.0.0-RC6 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 2.0.0-RC7 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -896,7 +896,7 @@ indexFilename: "TDDP_PM.index",
     for (var i = 1; i <= 2; i++) {
       if (tempSpritesetBattle["battleback" + i + "Name"]()) {
         $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["battleback" + i + "Name"]());
-      } else if (tempSpritesetBattle["normalBattleback" + i + "Name"]()) {
+      } else if (!BattleManager.isBattleTest() && tempSpritesetBattle["normalBattleback" + i + "Name"]()) {
         $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["normalBattleback" + i + "Name"]());
       } else if (tempSpritesetBattle["terrainBattleback" + i + "Name"]()) {
         $.queueImageFileForPreload("battlebacks" + i, tempSpritesetBattle["terrainBattleback" + i + "Name"]())
@@ -1229,6 +1229,18 @@ indexFilename: "TDDP_PM.index",
   PreloadObject.prototype.isImage = function() {
     return this.fileType == "image";
   }
+  Object.defineProperty(PreloadObject.prototype, 'data', {
+    get: function() {
+      switch (this.fileType) {
+        case "image":
+          var pristineBitmap = new Bitmap(this._data.width, this._data.height);
+          pristineBitmap.bltImage(this._data, 0, 0, this._data.width, this._data.height, 0, 0);
+          return pristineBitmap;
+        case "audio":
+          return this._data;
+      }
+    }
+  })
   /**
    * The file extension with no leading punctuation
    * @property fileExtension
@@ -1292,11 +1304,11 @@ indexFilename: "TDDP_PM.index",
   PreloadObject.prototype._initializeData = function() {
     switch (this.fileType) {
       case "image":
-        this.data = new Bitmap();
-        this.data._isLoading = true;
+        this._data = new Bitmap();
+        this._data._isLoading = true;
         break;
       case "audio":
-        this.data = new WebAudio(this.path, false);
+        this._data = new WebAudio(this.path, false);
         break;
     }
   }
@@ -1324,11 +1336,11 @@ indexFilename: "TDDP_PM.index",
     xhr.onload = function(evt) {
       var mimeType = "image/" + this.fileExtension;
       var blob = new Blob([xhr.response], {type: mimeType});
-      this.data._image = new Image();
-      this.data._url = this.path;
-      this.data._image.onload = Bitmap.prototype._onLoad.bind(this.data);
-      this.data._image.onerror = Bitmap.prototype._onError.bind(this.data);
-      this.data._image.src = window.URL.createObjectURL(blob);
+      this._data._image = new Image();
+      this._data._url = this.path;
+      this._data._image.onload = Bitmap.prototype._onLoad.bind(this._data);
+      this._data._image.onerror = Bitmap.prototype._onError.bind(this._data);
+      this._data._image.src = window.URL.createObjectURL(blob);
       this.dispatchEvent(evt);
     }.bind(this);
 
@@ -1342,10 +1354,10 @@ indexFilename: "TDDP_PM.index",
    * @private
    */
   PreloadObject.prototype._loadAudio = function() {
-    this.data.addEventListener("progress", this.dispatchEvent.bind(this));
-    this.data.addEventListener("load", this.dispatchEvent.bind(this));
-    this.data.addEventListener("error", this.dispatchEvent.bind(this));
-    this.data._load(this.path);
+    this._data.addEventListener("progress", this.dispatchEvent.bind(this));
+    this._data.addEventListener("load", this.dispatchEvent.bind(this));
+    this._data.addEventListener("error", this.dispatchEvent.bind(this));
+    this._data._load(this.path);
   }
   //=============================================================================
   // Scene_Boot extension / overwrites
@@ -1498,7 +1510,6 @@ indexFilename: "TDDP_PM.index",
         return preloadObject.data;
       } else {
         throw new Error("File not found: " + url);
-        return null;
       }
     }
   };
