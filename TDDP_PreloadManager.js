@@ -1231,14 +1231,7 @@ indexFilename: "TDDP_PM.index",
   }
   Object.defineProperty(PreloadObject.prototype, 'data', {
     get: function() {
-      switch (this.fileType) {
-        case "image":
-          var pristineBitmap = new Bitmap(this._data.width, this._data.height);
-          pristineBitmap.bltImage(this._data, 0, 0, this._data.width, this._data.height, 0, 0);
-          return pristineBitmap;
-        case "audio":
-          return this._data;
-      }
+      return this._data;
     }
   })
   /**
@@ -1489,7 +1482,9 @@ indexFilename: "TDDP_PM.index",
   // Bitmap extension
   //=============================================================================
   /**
-   * Extended to use PreloadManager cache for smarter handling of bitmaps
+   * Extended to use PreloadManager cache for smarter handling of bitmaps,
+   * returning dupes from cache using bltImage with minimal memory footprint
+   * due to MV's internal ImageManager caching
    *
    * @static
    * @method load
@@ -1500,14 +1495,29 @@ indexFilename: "TDDP_PM.index",
   Bitmap.load = function(url) {
     var url = decodeURIComponent(url);
     var cachedPreloadObject = $.cache.retrieveFromPath(url);
+
+    var copy = function(src, target) {
+      target.bltImage(src, 0, 0, src.width, src.height, 0, 0)
+    }
+
+    var dupe = function(src) {
+      var target = new Bitmap(src.width, src.height);
+      copy(src, target);
+      return target;
+    }
+
     if (cachedPreloadObject) {
       $.helper.log("Cache hit:", url);
-      return cachedPreloadObject.data;
+      return dupe(cachedPreloadObject.data);
     } else {
       $.helper.log("Cache miss (fetching):", url);
       var preloadObject = $.loadImmediately(url);
       if (preloadObject) {
-        return preloadObject.data;
+        var dupeBitmap = new Bitmap(preloadObject.data.width, preloadObject.data.height);
+        preloadObject.data.addLoadListener(function() {
+          copy(preloadObject.data, dupeBitmap);
+        }.bind(this))
+        return dupeBitmap;
       } else {
         throw new Error("File not found: " + url);
       }
